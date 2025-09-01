@@ -1,0 +1,9 @@
+# Example configuration for smt-data-exporter-python
+# Copy this file to config.toml and fill in your credentials and settings
+
+smt_username = "your_username"
+smt_password = "your_password"
+ynab_access_token = "your_ynab_access_token"
+ynab_budget_id = "your_ynab_budget_id"
+ynab_category_id = "your_ynab_category_id"
+kwh_rate = 0.17754
