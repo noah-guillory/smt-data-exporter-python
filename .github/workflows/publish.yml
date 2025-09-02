@@ -26,10 +26,10 @@ jobs:
         id: get_tag
         run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - name: Build Docker image
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}/smt-data-exporter:${{ env.TAG_VERSION }} .
-
-      - name: Push Docker image
-        run: |
-          docker push ghcr.io/${{ github.repository }}/smt-data-exporter:${{ env.TAG_VERSION }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/smt-data-exporter:${{ env.TAG_VERSION }} 
