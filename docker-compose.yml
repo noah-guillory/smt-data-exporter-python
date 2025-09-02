@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   smt-data-exporter:
-    image: ghcr.io/noah-guillory/smt-data-exporter-python/smt-data-exporter:0.0.1
+    image: ghcr.io/noah-guillory/smt-data-exporter-python/smt-data-exporter:latest
     env_file: ".env"
     environment:
       # Set your desired cron schedule here (e.g., every day at 2am)

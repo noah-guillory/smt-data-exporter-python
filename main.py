@@ -141,6 +141,17 @@ async def main() -> None:
         average = calculate_trailing_12_month_average(report_data)
         update_electric_bill_target(average)
         logger.info("YNAB electric bill target updated.")
+        if config.healthcheck_url:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    config.healthcheck_url, timeout=aiohttp.ClientTimeout(total=10)
+                ) as resp:
+                    if resp.status == 200:
+                        logger.info("Healthcheck ping successful.")
+                    else:
+                        logger.error(
+                            f"Healthcheck ping failed with status code {resp.status}."
+                        )
     except Exception as e:
         logger.error(f"Error: {e}")
 
