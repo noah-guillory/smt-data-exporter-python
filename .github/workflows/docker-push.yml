@@ -31,4 +31,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/smt-data-exporter-python:latest
+          tags: ghcr.io/${{ github.repository }}/smt-data-exporter:latest
