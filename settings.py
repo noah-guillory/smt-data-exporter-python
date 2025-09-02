@@ -14,15 +14,4 @@ class SMTConfig(BaseSettings):
     ynab_budget_id: str
     ynab_category_id: str
     kwh_rate: float
-    model_config = SettingsConfigDict(toml_file="config.toml")
-
-    @classmethod
-    def settings_customise_sources(
-        cls,
-        settings_cls: type[BaseSettings],
-        init_settings: PydanticBaseSettingsSource,
-        env_settings: PydanticBaseSettingsSource,
-        dotenv_settings: PydanticBaseSettingsSource,
-        file_secret_settings: PydanticBaseSettingsSource,
-    ) -> tuple[PydanticBaseSettingsSource, ...]:
-        return (TomlConfigSettingsSource(settings_cls),)
+    model_config = SettingsConfigDict(env_file=".env")

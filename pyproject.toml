@@ -5,9 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "certifi>=2025.8.3",
     "pandas>=2.3.2",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
-    "pyppeteer>=2.0.0",
+    "pyopenssl>=25.1.0",
+    "smart-meter-texas>=0.5.5",
     "ynab>=1.8.0",
 ]

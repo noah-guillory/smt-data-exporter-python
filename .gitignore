@@ -60,6 +60,7 @@ coverage.xml
 # dotenv
 .env
 .env.*
+!.env.example
 
 # TOML config with secrets
 config.toml # Python-generated files

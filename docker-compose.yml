@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  smt-data-exporter:
+    platform: linux/amd64
+    build: .
+    env_file: ".env"
+    environment:
+      # Set your desired cron schedule here (e.g., every day at 2am)
+      CRON_SCHEDULE: "0 2 * * *"
+      # SMT_SMT_USERNAME: "your_smt_username"
+      # SMT_SMT_PASSWORD: "your_smt_password"
+      # SMT_YNAB_ACCESS_TOKEN: "your_ynab_access_token"
+      # SMT_YNAB_BUDGET_ID: "your_ynab_budget_id"
+      # SMT_YNAB_CATEGORY_ID: "your_ynab_category_id"
+      # SMT_KWH_RATE: "0.12"
+    volumes:
+      - ./downloads:/app/downloads
+    restart: unless-stopped
