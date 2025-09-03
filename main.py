@@ -21,8 +21,8 @@ __author__ = "Noah Guillory"
 __version__ = "0.1.0"
 
 # Constants
-DOWNLOAD_DIR = Path(__file__).parent / "downloads"
-DOWNLOAD_DIR.mkdir(exist_ok=True)
+DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR.mkdir(exist_ok=True)
 
 
 # Load config from environment variables
@@ -136,24 +136,69 @@ async def main() -> None:
     Main entry point for the script.
     """
     try:
+        current_month = datetime.now().strftime("%Y-%m")
+        export_marker = (
+            Path(__file__).parent / "downloads" / f"exported_{current_month}.csv"
+        )
+        if check_export_marker(export_marker, current_month):
+            return
         report_data = await get_monthly_report()
         logger.info("Download completed.")
         average = calculate_trailing_12_month_average(report_data)
         update_electric_bill_target(average)
         logger.info("YNAB electric bill target updated.")
-        if config.healthcheck_url:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    config.healthcheck_url, timeout=aiohttp.ClientTimeout(total=10)
-                ) as resp:
-                    if resp.status == 200:
-                        logger.info("Healthcheck ping successful.")
-                    else:
-                        logger.error(
-                            f"Healthcheck ping failed with status code {resp.status}."
-                        )
+        save_export_marker(export_marker, report_data)
+        await ping_healthcheck()
     except Exception as e:
         logger.error(f"Error: {e}")
+
+
+def check_export_marker(export_marker: Path, current_month: str) -> bool:
+    """
+    Check if export marker file exists for the current month. Log and return True if exists, else False.
+    """
+    if export_marker.exists():
+        logger.info(f"Export for {current_month} already completed. No-op.")
+        return True
+    return False
+
+
+def save_export_marker(
+    export_marker: Path, report_data: MonthlyBillingDataResponse
+) -> None:
+    """
+    Save the export marker file for the current month, including the latest month's data as CSV.
+    """
+    billing_data = report_data.data.billing_data
+    if billing_data:
+        df = pd.DataFrame(
+            [
+                {
+                    "Start date": bd.start_date.strftime("%Y-%m-%d"),
+                    "Actual kWh": bd.actual_kwh,
+                }
+                for bd in billing_data
+            ]
+        )
+        df.to_csv(export_marker, index=False)
+        logger.info(f"Export marker saved: {export_marker}")
+
+
+async def ping_healthcheck() -> None:
+    """
+    Ping the healthcheck URL if configured.
+    """
+    if config.healthcheck_url:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                config.healthcheck_url, timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
+                if resp.status == 200:
+                    logger.info("Healthcheck ping successful.")
+                else:
+                    logger.error(
+                        f"Healthcheck ping failed with status code {resp.status}."
+                    )
 
 
 if __name__ == "__main__":
