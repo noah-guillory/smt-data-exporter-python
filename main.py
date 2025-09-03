@@ -140,6 +140,7 @@ async def main() -> None:
         current_month = datetime.now().strftime("%Y-%m")
         export_marker = Path(__file__).parent / "data" / f"exported_{current_month}.csv"
         if check_export_marker(export_marker, current_month):
+            await ping_healthcheck()
             return
         report_data = await get_monthly_report()
         logger.info("Download completed.")
