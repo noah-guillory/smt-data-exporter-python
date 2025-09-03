@@ -137,9 +137,7 @@ async def main() -> None:
     """
     try:
         current_month = datetime.now().strftime("%Y-%m")
-        export_marker = (
-            Path(__file__).parent / "downloads" / f"exported_{current_month}.csv"
-        )
+        export_marker = Path(__file__).parent / "data" / f"exported_{current_month}.csv"
         if check_export_marker(export_marker, current_month):
             return
         report_data = await get_monthly_report()
