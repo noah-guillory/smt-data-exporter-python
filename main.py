@@ -136,6 +136,7 @@ async def main() -> None:
     Main entry point for the script.
     """
     try:
+        await ping_healthcheck_start()
         current_month = datetime.now().strftime("%Y-%m")
         export_marker = Path(__file__).parent / "data" / f"exported_{current_month}.csv"
         if check_export_marker(export_marker, current_month):
@@ -149,6 +150,7 @@ async def main() -> None:
         await ping_healthcheck()
     except Exception as e:
         logger.error(f"Error: {e}")
+        await ping_healthcheck_failed()
 
 
 def check_export_marker(export_marker: Path, current_month: str) -> bool:
@@ -198,6 +200,37 @@ async def ping_healthcheck() -> None:
                         f"Healthcheck ping failed with status code {resp.status}."
                     )
 
+async def ping_healthcheck_start():
+    """
+    Ping the healthcheck URL if configured.
+    """
+    if config.healthcheck_url:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{config.healthcheck_url}/start", timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
+                if resp.status == 200:
+                    logger.info("Healthcheck ping successful.")
+                else:
+                    logger.error(
+                        f"Healthcheck ping failed with status code {resp.status}."
+                    )
+
+async def ping_healthcheck_failed():
+    """
+    Ping the healthcheck URL if configured.
+    """
+    if config.healthcheck_url:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{config.healthcheck_url}/fail", timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
+                if resp.status == 200:
+                    logger.info("Healthcheck ping successful.")
+                else:
+                    logger.error(
+                        f"Healthcheck ping failed with status code {resp.status}."
+                    )
 
 if __name__ == "__main__":
     asyncio.run(main())
