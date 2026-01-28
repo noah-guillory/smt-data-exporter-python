@@ -17,10 +17,14 @@ class BillingData(BaseModel):
     metered_kva: float = Field(..., alias="meteredKVA")
     billed_kva: float = Field(..., alias="billedKVA")
 
+    model_config = {"populate_by_name": True}
+
     @field_validator("start_date", "end_date", mode="before")
     def parse_dates(cls, value):
         """Parse date strings to datetime objects."""
-        return datetime.strptime(value, "%m/%d/%Y")
+        if isinstance(value, str):
+            return datetime.strptime(value, "%m/%d/%Y")
+        return value
 
     @field_validator("revision_date", mode="before")
     def parse_timestamps(cls, value):
@@ -40,6 +44,8 @@ class Data(BaseModel):
     trans_id: str = Field(..., alias="trans_id")
     esiid: str
     billing_data: List[BillingData] = Field(..., alias="billingData")
+
+    model_config = {"populate_by_name": True}
 
 
 class MonthlyBillingDataResponse(BaseModel):

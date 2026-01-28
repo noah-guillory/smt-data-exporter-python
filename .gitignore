@@ -73,3 +73,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Lambda deployment artifacts
+build/
+lambda-deployment.zip
+response.json
