@@ -7,7 +7,7 @@ This AWS Lambda function automates the retrieval of monthly electricity usage da
 - **AWS Lambda Function**: Serverless execution with EventBridge scheduled triggers
 - **No pandas dependency**: Lightweight deployment package using pure Python
 - **CloudFormation Infrastructure**: Complete infrastructure-as-code deployment
-- **Smart Meter Texas API**: Secure, reliable data access (no browser automation or webscraping)
+- **Smart Meter Texas API**: Secure, reliable data access (no browser automation or web scraping)
 - **Trailing 12-month average**: Calculates electricity usage directly from API data
 - **YNAB Integration**: Automatically updates your electric bill category target
 - **Secure Configuration**: All credentials stored as Lambda environment variables

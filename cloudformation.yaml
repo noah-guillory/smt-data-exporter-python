@@ -80,15 +80,6 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: LambdaS3Access
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
       Tags:
         - Key: Application
           Value: SMT-Data-Exporter
@@ -97,7 +88,7 @@ Resources:
   LambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub '/aws/lambda/${LambdaFunction}'
+      LogGroupName: /aws/lambda/smt-data-exporter
       RetentionInDays: 30
 
   # Lambda Function

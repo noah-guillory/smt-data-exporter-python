@@ -11,11 +11,8 @@ from smart_meter_texas import Account, Client, ClientSSLContext, Meter
 from settings import SMTConfig
 from models import MonthlyBillingDataResponse
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 __author__ = "Noah Guillory"
 __version__ = "0.2.0"

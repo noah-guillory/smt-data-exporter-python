@@ -55,5 +55,4 @@ class MonthlyBillingDataResponse(BaseModel):
 
     data: Data
 
-    class Config:
-        validate_by_name = True  # Allow for case-insensitive field names
+    model_config = {"populate_by_name": True}
