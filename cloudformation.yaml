@@ -1,0 +1,196 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Smart Meter Texas Data Exporter Lambda Function with EventBridge Scheduler'
+
+Parameters:
+  S3Bucket:
+    Type: String
+    Description: S3 bucket containing the Lambda deployment package
+  
+  S3Key:
+    Type: String
+    Default: lambda-deployment.zip
+    Description: S3 key for the Lambda deployment package
+  
+  SmtUsername:
+    Type: String
+    Description: Smart Meter Texas username
+    NoEcho: true
+  
+  SmtPassword:
+    Type: String
+    Description: Smart Meter Texas password
+    NoEcho: true
+  
+  YnabAccessToken:
+    Type: String
+    Description: YNAB API access token
+    NoEcho: true
+  
+  YnabBudgetId:
+    Type: String
+    Description: YNAB budget ID
+  
+  YnabCategoryId:
+    Type: String
+    Description: YNAB category ID for electric bill
+  
+  KwhRate:
+    Type: String
+    Description: Cost per kWh (e.g., 0.17754)
+    Default: '0.17754'
+  
+  HealthcheckUrl:
+    Type: String
+    Description: Optional healthcheck URL (e.g., https://hc-ping.com/uuid)
+    Default: ''
+  
+  ScheduleExpression:
+    Type: String
+    Description: EventBridge schedule expression
+    Default: 'cron(0 2 1 * ? *)'  # Monthly on the 1st at 2 AM UTC
+  
+  LambdaTimeout:
+    Type: Number
+    Description: Lambda function timeout in seconds
+    Default: 300
+    MinValue: 60
+    MaxValue: 900
+  
+  LambdaMemorySize:
+    Type: Number
+    Description: Lambda function memory in MB
+    Default: 256
+    MinValue: 128
+    MaxValue: 10240
+
+Conditions:
+  HasHealthcheckUrl: !Not [!Equals [!Ref HealthcheckUrl, '']]
+
+Resources:
+  # Lambda Execution Role
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaS3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
+      Tags:
+        - Key: Application
+          Value: SMT-Data-Exporter
+
+  # CloudWatch Log Group
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LambdaFunction}'
+      RetentionInDays: 30
+
+  # Lambda Function
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: smt-data-exporter
+      Description: Exports Smart Meter Texas data and updates YNAB electric bill target
+      Runtime: python3.11
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref S3Bucket
+        S3Key: !Ref S3Key
+      Timeout: !Ref LambdaTimeout
+      MemorySize: !Ref LambdaMemorySize
+      Environment:
+        Variables:
+          SMT_USERNAME: !Ref SmtUsername
+          SMT_PASSWORD: !Ref SmtPassword
+          YNAB_ACCESS_TOKEN: !Ref YnabAccessToken
+          YNAB_BUDGET_ID: !Ref YnabBudgetId
+          YNAB_CATEGORY_ID: !Ref YnabCategoryId
+          KWH_RATE: !Ref KwhRate
+          HEALTHCHECK_URL: !If [HasHealthcheckUrl, !Ref HealthcheckUrl, !Ref 'AWS::NoValue']
+      Tags:
+        - Key: Application
+          Value: SMT-Data-Exporter
+
+  # EventBridge Rule
+  ScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: smt-data-exporter-schedule
+      Description: Trigger SMT data export on a schedule
+      ScheduleExpression: !Ref ScheduleExpression
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt LambdaFunction.Arn
+          Id: SmtDataExporterTarget
+
+  # Permission for EventBridge to invoke Lambda
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ScheduledRule.Arn
+
+  # CloudWatch Alarm for Lambda Errors
+  LambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: smt-data-exporter-errors
+      AlarmDescription: Alert when Lambda function has errors
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref LambdaFunction
+      TreatMissingData: notBreaching
+
+Outputs:
+  LambdaFunctionArn:
+    Description: ARN of the Lambda function
+    Value: !GetAtt LambdaFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaFunctionArn'
+  
+  LambdaFunctionName:
+    Description: Name of the Lambda function
+    Value: !Ref LambdaFunction
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaFunctionName'
+  
+  ScheduledRuleArn:
+    Description: ARN of the EventBridge scheduled rule
+    Value: !GetAtt ScheduledRule.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-ScheduledRuleArn'
+  
+  LogGroupName:
+    Description: Name of the CloudWatch Log Group
+    Value: !Ref LambdaLogGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-LogGroupName'
+  
+  ScheduleExpression:
+    Description: Schedule expression for the EventBridge rule
+    Value: !Ref ScheduleExpression
