@@ -1,5 +1,19 @@
 # SMT Data Exporter Python
 
+> **🚀 NEW: AWS Lambda Version Available!** 
+> 
+> This project now supports serverless deployment using AWS Lambda with EventBridge scheduling.
+> See [README-LAMBDA.md](README-LAMBDA.md) for AWS Lambda deployment instructions.
+> 
+> The Lambda version:
+> - ✅ Removes pandas dependency for lighter deployment packages
+> - ✅ Uses CloudFormation for complete infrastructure-as-code
+> - ✅ Includes automated deployment script
+> - ✅ Runs on a scheduled basis via EventBridge
+> - ✅ Costs < $1/month on AWS
+
+---
+
 ## Overview
 This script automates the retrieval of monthly electricity usage data from Smart Meter Texas using the official API, calculates the trailing 12-month average kWh usage, and updates a YNAB (You Need A Budget) category target based on your usage and kWh rate.
 

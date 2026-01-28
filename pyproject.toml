@@ -1,12 +1,11 @@
 [project]
 name = "smt-data-exporter-python"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "AWS Lambda function to export Smart Meter Texas data to YNAB"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "certifi>=2025.8.3",
-    "pandas>=2.3.2",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
     "pyopenssl>=25.1.0",
