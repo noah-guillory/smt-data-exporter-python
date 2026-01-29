@@ -1,0 +1,32 @@
+{
+  "name": "smt-data-exporter-cdk",
+  "version": "1.0.0",
+  "description": "AWS CDK application for SMT Data Exporter",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "diff": "cdk diff",
+    "destroy": "cdk destroy"
+  },
+  "keywords": [
+    "aws",
+    "cdk",
+    "lambda",
+    "smart-meter-texas"
+  ],
+  "author": "Noah Guillory",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "aws-cdk": "^2.150.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.150.0",
+    "constructs": "^10.0.0"
+  }
+}

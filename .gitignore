@@ -78,3 +78,14 @@ wheels/
 build/
 lambda-deployment.zip
 response.json
+
+# CDK artifacts
+cdk/node_modules/
+cdk/lib/
+cdk/cdk.out/
+cdk/*.js
+cdk/*.d.ts
+cdk/bin/*.js
+cdk/bin/*.d.ts
+cdk/package-lock.json
+cdk/.cdk.staging/
