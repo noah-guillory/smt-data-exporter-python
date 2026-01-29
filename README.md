@@ -3,12 +3,13 @@
 > **🚀 NEW: AWS Lambda Version Available!** 
 > 
 > This project now supports serverless deployment using AWS Lambda with EventBridge scheduling.
-> See [README-LAMBDA.md](README-LAMBDA.md) for AWS Lambda deployment instructions.
+> - See [README-LAMBDA.md](README-LAMBDA.md) for CloudFormation deployment
+> - See [cdk/README.md](cdk/README.md) for AWS CDK (TypeScript) deployment
 > 
 > The Lambda version:
 > - ✅ Removes pandas dependency for lighter deployment packages
-> - ✅ Uses CloudFormation for complete infrastructure-as-code
-> - ✅ Includes automated deployment script
+> - ✅ Uses CloudFormation or CDK for complete infrastructure-as-code
+> - ✅ Includes automated deployment scripts
 > - ✅ Runs on a scheduled basis via EventBridge
 > - ✅ Costs < $1/month on AWS
 

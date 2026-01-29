@@ -1,5 +1,9 @@
 # SMT Data Exporter - AWS Lambda
 
+> **💡 Deployment Options:**
+> - This guide covers CloudFormation deployment using `deploy.sh`
+> - For AWS CDK (TypeScript) deployment, see [cdk/README.md](cdk/README.md)
+
 ## Overview
 This AWS Lambda function automates the retrieval of monthly electricity usage data from Smart Meter Texas using the official API, calculates the trailing 12-month average kWh usage, and updates a YNAB (You Need A Budget) category target based on your usage and kWh rate.
 
