@@ -221,6 +221,14 @@ const scheduleExpression = app.node.tryGetContext('scheduleExpression') || proce
 const lambdaTimeout = parseInt(app.node.tryGetContext('lambdaTimeout') || process.env.LAMBDA_TIMEOUT || '300');
 const lambdaMemorySize = parseInt(app.node.tryGetContext('lambdaMemorySize') || process.env.LAMBDA_MEMORY_SIZE || '256');
 
+// Validate numeric parameters
+if (isNaN(lambdaTimeout) || lambdaTimeout < 60 || lambdaTimeout > 900) {
+  throw new Error('LAMBDA_TIMEOUT must be a valid number between 60 and 900 seconds');
+}
+if (isNaN(lambdaMemorySize) || lambdaMemorySize < 128 || lambdaMemorySize > 10240) {
+  throw new Error('LAMBDA_MEMORY_SIZE must be a valid number between 128 and 10240 MB');
+}
+
 // Validate required parameters
 if (!s3Bucket) {
   throw new Error('S3_BUCKET environment variable or context parameter is required');

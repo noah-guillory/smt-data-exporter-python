@@ -95,18 +95,17 @@ The deployment script will:
 1. Install Python dependencies
 2. Create Lambda deployment package
 3. Upload to S3
-4. Build TypeScript CDK code
-5. Bootstrap CDK (if needed)
-6. Deploy the CDK stack
+4. Install CDK dependencies (if needed)
+5. Deploy the CDK stack (TypeScript compiled on-the-fly)
 
 ### 4. Alternative: Manual CDK Deployment
 
 If you prefer to run CDK commands manually:
 
 ```bash
-# Build the TypeScript code
+# Install dependencies
 cd cdk
-npm run build
+npm install
 
 # Synthesize CloudFormation template (optional - to preview)
 npm run synth
@@ -115,6 +114,8 @@ npm run synth
 npm run deploy
 ```
 
+**Note**: TypeScript is compiled automatically on-the-fly using ts-node, so no build step is required.
+
 ## CDK Commands
 
 From the `cdk` directory:
@@ -122,12 +123,6 @@ From the `cdk` directory:
 ```bash
 # Install dependencies
 npm install
-
-# Build TypeScript code
-npm run build
-
-# Watch for changes and rebuild
-npm run watch
 
 # Synthesize CloudFormation template
 npm run synth
@@ -262,6 +257,21 @@ This CDK application provides the same functionality as the CloudFormation templ
 4. **Testing**: Can write unit tests for infrastructure code
 5. **IDE Support**: Better autocomplete and inline documentation
 
+## Security Considerations
+
+**Sensitive Credentials**: Like the original CloudFormation template, this CDK application stores credentials (SMT username/password, YNAB token) as Lambda environment variables. These values are:
+- Visible in the AWS Console Lambda configuration
+- Stored in the CloudFormation template
+- Encrypted at rest by AWS but visible to users with appropriate IAM permissions
+
+**For enhanced security**, consider:
+- Using AWS Secrets Manager to store sensitive credentials
+- Using AWS Systems Manager Parameter Store with SecureString
+- Granting the Lambda execution role permission to retrieve secrets at runtime
+- Modifying the Lambda function code to fetch secrets instead of using environment variables
+
+The current implementation matches the original CloudFormation template behavior for compatibility and simplicity.
+
 ## Project Structure
 
 ```
@@ -289,11 +299,15 @@ cdk bootstrap aws://ACCOUNT-ID/REGION
 
 ### TypeScript Compilation Errors
 
-Ensure you have the latest dependencies:
+If you encounter TypeScript errors, ensure you have the latest dependencies:
 ```bash
 cd cdk
 npm install
-npm run build
+```
+
+TypeScript is compiled automatically via ts-node, but you can test the syntax with:
+```bash
+npx tsc --noEmit
 ```
 
 ### Lambda Deployment Package Issues

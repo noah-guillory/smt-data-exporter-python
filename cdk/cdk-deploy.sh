@@ -99,7 +99,10 @@ print_info "Package size: $PACKAGE_SIZE"
 
 # Upload to S3
 print_info "Uploading deployment package to S3..."
-aws s3 cp "$BUILD_DIR/lambda-deployment.zip" "s3://$S3_BUCKET/lambda-deployment.zip"
+if ! aws s3 cp "$BUILD_DIR/lambda-deployment.zip" "s3://$S3_BUCKET/lambda-deployment.zip"; then
+    print_error "Failed to upload deployment package to S3"
+    exit 1
+fi
 
 # Install CDK dependencies if not already installed
 if [ ! -d "$SCRIPT_DIR/node_modules" ]; then
@@ -109,18 +112,12 @@ if [ ! -d "$SCRIPT_DIR/node_modules" ]; then
     cd "$PROJECT_ROOT"
 fi
 
-# Build CDK TypeScript code
-print_info "Building CDK application..."
+# CDK will compile TypeScript on-the-fly using ts-node
 cd "$SCRIPT_DIR"
-npm run build
 
-# Bootstrap CDK if needed (first time only)
-print_info "Ensuring CDK is bootstrapped..."
-cdk bootstrap aws://unknown-account/$AWS_REGION || true
-
-# Deploy CDK stack
+# Deploy CDK stack (CDK will automatically bootstrap if needed)
 print_info "Deploying CDK stack..."
-cdk deploy \
+if cdk deploy \
     --require-approval never \
     --context stackName="$STACK_NAME" \
     --context awsRegion="$AWS_REGION" \
@@ -135,10 +132,15 @@ cdk deploy \
     --context healthcheckUrl="${HEALTHCHECK_URL:-}" \
     --context scheduleExpression="${SCHEDULE_EXPRESSION:-cron(0 2 1 * ? *)}" \
     --context lambdaTimeout="${LAMBDA_TIMEOUT:-300}" \
-    --context lambdaMemorySize="${LAMBDA_MEMORY_SIZE:-256}"
-
-cd "$PROJECT_ROOT"
-
-print_info "Deployment complete!"
-print_info "Lambda function deployed successfully!"
-print_info "The function will run on the configured schedule (default: monthly on the 1st at 2 AM UTC)"
+    --context lambdaMemorySize="${LAMBDA_MEMORY_SIZE:-256}"; then
+    
+    cd "$PROJECT_ROOT"
+    
+    print_info "Deployment complete!"
+    print_info "Lambda function deployed successfully!"
+    print_info "The function will run on the configured schedule (default: monthly on the 1st at 2 AM UTC)"
+else
+    cd "$PROJECT_ROOT"
+    print_error "CDK deployment failed"
+    exit 1
+fi

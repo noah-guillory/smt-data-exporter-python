@@ -4,8 +4,6 @@
   "description": "AWS CDK application for SMT Data Exporter",
   "main": "lib/index.js",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
     "cdk": "cdk",
     "synth": "cdk synth",
     "deploy": "cdk deploy",
@@ -23,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "aws-cdk": "^2.150.0",
+    "ts-node": "^10.9.0",
     "typescript": "^5.0.0"
   },
   "dependencies": {
